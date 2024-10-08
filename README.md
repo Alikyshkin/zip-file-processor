@@ -6,3 +6,5 @@ This project provides a service for uploading and processing zip files. It filte
 
 ```bash
 npm install
+
+npm run start
