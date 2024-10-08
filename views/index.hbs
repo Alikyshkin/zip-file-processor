@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Получить данные в JSON</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    #loader {
+      display: none;
+      margin-top: 10px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 20px;
+    }
+    .copy-btn {
+      display: block;
+      width: 80%;
+      margin: 20px auto;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      text-align: center;
+    }
+    .copy-btn:hover {
+      background-color: #45a049;
+    }
+    #startButton {
+      padding: 10px 20px;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    #startButton:disabled {
+      background-color: #ddd;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Получить данные в JSON</h1>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" accept=".zip" required />
+    <button type="submit" id="startButton" disabled>Начать</button>
+  </form>
+  <div id="loader">Загрузка...</div>
+  <textarea id="resultArea" readonly></textarea>
+  <button class="copy-btn" id="copyButton" style="display: none;">Скопировать</button>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const startButton = document.getElementById('startButton');
+    const loader = document.getElementById('loader');
+    const resultArea = document.getElementById('resultArea');
+    const copyButton = document.getElementById('copyButton');
+
+    // Активируем кнопку после загрузки файла
+    fileInput.addEventListener('change', () => {
+      startButton.disabled = !fileInput.files.length;
+    });
+
+    // Отправка файла на сервер
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loader.style.display = 'block';
+      startButton.disabled = true;
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await response.text(); // Читаем ответ как текст
+        resultArea.value = data; // Показываем результат
+        resultArea.style.display = 'block';
+        copyButton.style.display = 'block'; // Показываем кнопку копирования
+      } catch (err) {
+        console.error('Ошибка загрузки:', err);
+      } finally {
+        loader.style.display = 'none';
+        startButton.disabled = false;
+      }
+    });
+
+    // Копирование результата
+    copyButton.addEventListener('click', () => {
+      resultArea.select();
+      document.execCommand('copy');
+    });
+  </script>
+</body>
+</html>
